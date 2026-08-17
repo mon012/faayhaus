@@ -1,0 +1,47 @@
+---
+import Base from '../layouts/Base.astro';
+import ProductCard from '../components/ProductCard.astro';
+import products from '../data/products.json';
+
+const categoryOrder = ['tablewarekitchen', 'tableware', 'bathing'];
+const categoryCopy: Record<string, string> = {
+  tablewarekitchen: 'The tools that live by the stove.',
+  tableware: 'Pieces that make sitting down to eat feel like an occasion.',
+  bathing: 'Loofah and teak for the two minutes you take for yourself.',
+};
+const groups = categoryOrder.map((slug) => {
+  const items = products.filter((product) => product.categories?.some((category) => category.slug === slug));
+  return {
+    slug,
+    name: items[0]?.categories?.[0]?.name.replace('&amp;', '&') || slug,
+    items,
+    description: categoryCopy[slug],
+  };
+}).filter((group) => group.items.length > 0);
+---
+<Base title="Products — FAAY HAUS®" description="Explore handmade teak kitchenware and household products from FAAY HAUS.">
+  <section class="page-hero page-hero-products">
+    <h1>Objects for daily rituals.</h1>
+    <p>Spoons, ladles, and scrubbers shaped by hand from teak and loofah, ready for daily use. Product purchases open on Amazon.</p>
+  </section>
+  <nav class="category-jump" aria-label="Product categories">
+    <span>Browse by category</span>
+    <div>
+      {groups.map((group) => <a href={`#${group.slug}`}>{group.name} <small>{group.items.length}</small></a>)}
+    </div>
+  </nav>
+  <div class="grouped-catalog">
+    {groups.map((group) => (
+      <section class="product-group" id={group.slug}>
+        <div class="product-group-heading">
+          <div>
+            <p>{String(group.items.length).padStart(2, '0')} products</p>
+            <h2>{group.name}</h2>
+          </div>
+          <p>{group.description}</p>
+        </div>
+        <div class="product-grid">{group.items.map((product) => <ProductCard product={product} />)}</div>
+      </section>
+    ))}
+  </div>
+</Base>

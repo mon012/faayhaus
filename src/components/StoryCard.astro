@@ -1,0 +1,7 @@
+---
+import { featured, featuredAlt, featuredSrcset, clean } from '../lib';
+const { post, headingLevel = 'h3', excerpt = true } = Astro.props;
+const Heading = headingLevel;
+const image = featured(post);
+---
+<article><a href={`/${post.slug}/`}>{image && <img data-image-component src={image} srcset={featuredSrcset(post)} sizes="(max-width:600px) 100vw, (max-width:900px) 50vw, 33vw" alt={featuredAlt(post)} loading="lazy" decoding="async" />}<Heading>{clean(post.title.rendered)}</Heading>{excerpt && <p>{clean(post.excerpt.rendered)}</p>}<span class="text-link">Read story →</span></a></article>

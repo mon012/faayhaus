@@ -1,0 +1,190 @@
+---
+import Base from '../layouts/Base.astro';
+import StoryCard from '../components/StoryCard.astro';
+import posts from '../data/posts.json';
+import pages from '../data/pages.json';
+import { featured, featuredAlt, featuredSrcset, clean, stripDuplicateTitle, prepareEmbeddedMedia } from '../lib';
+
+export function getStaticPaths() {
+  const excluded = new Set(['articles', 'store', 'cart', 'checkout', 'my-account', 'h']);
+  const items = [
+    ...posts.map((item) => ({ ...item, kind: 'post' })),
+    ...pages
+      .filter((item) => !excluded.has(item.slug))
+      .map((item) => ({ ...item, kind: 'page' })),
+  ];
+  return items.map((item) => ({
+    params: { slug: item.slug },
+    props: { item },
+  }));
+}
+
+const { item } = Astro.props;
+const image = featured(item);
+const isArticle = item.kind === 'post';
+const isAbout = item.slug === 'about';
+// The About page renders hand-written sections below instead of its imported
+// WordPress body, so only non-About entries need the content pipeline.
+const content = isAbout ? '' : prepareEmbeddedMedia(stripDuplicateTitle(item.content.rendered));
+// Imported pages carry no taxonomy, so only post entries have these keys.
+const itemCategories = new Set<number>('categories' in item ? item.categories : []);
+const itemTags = new Set<number>('tags' in item ? item.tags : []);
+const relatedPosts = isArticle
+  ? posts
+      .filter((post) => post.slug !== item.slug)
+      .map((post) => ({
+        post,
+        score:
+          (post.categories || []).filter((id) => itemCategories.has(id)).length * 3 +
+          (post.tags || []).filter((id) => itemTags.has(id)).length,
+      }))
+      .sort((a, b) => b.score - a.score || +new Date(b.post.date) - +new Date(a.post.date))
+      .slice(0, 3)
+      .map(({ post }) => post)
+  : [];
+const articleSchema = isArticle ? {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: clean(item.title.rendered),
+  description: clean(item.excerpt?.rendered || ''),
+  ...(image ? { image: [new URL(image, Astro.site).toString()] } : {}),
+  datePublished: item.date,
+  dateModified: item.modified || item.date,
+  author: { '@type': 'Organization', name: item._embedded?.author?.[0]?.name || 'FAAY HAUS' },
+  publisher: {
+    '@type': 'Organization',
+    name: 'FAAY HAUS',
+    logo: { '@type': 'ImageObject', url: new URL('/media/uploads/2019/06/logo.png', Astro.site).toString() },
+  },
+} : null;
+const breadcrumbSchema = isArticle ? {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: new URL('/', Astro.site).toString() },
+    { '@type': 'ListItem', position: 2, name: 'Ideas & Guides', item: new URL('/articles/', Astro.site).toString() },
+    { '@type': 'ListItem', position: 3, name: clean(item.title.rendered) },
+  ],
+} : null;
+---
+
+<Base
+  title={isAbout ? 'About — FAAY HAUS®' : `${clean(item.title.rendered)} — FAAY HAUS®`}
+  description={isAbout ? 'How FAAY HAUS® works with community makers in Thailand on practical design and thoughtfully chosen materials to shape objects for cooking, dining, and daily care.' : clean(item.excerpt?.rendered || '')}
+  image={image || undefined}
+  preload={isAbout ? '/media/uploads/2023/03/faayhaus-forest.jpg' : image || undefined}
+  type={isArticle ? 'article' : 'website'}
+  publishedTime={isArticle ? item.date : undefined}
+  modifiedTime={isArticle ? item.modified : undefined}
+  schema={[articleSchema, breadcrumbSchema].filter(Boolean)}
+>
+  {
+    isAbout ? (
+      <article class="about-page">
+        <section class="about-hero">
+          <div>
+            <p class="eyebrow">About FAAY HAUS®</p>
+            <h1>From a maker's hands to your kitchen drawer.</h1>
+            <p>Every spoon starts with someone in Thailand who knows the wood, and ends with someone in your kitchen who trusts it.</p>
+          </div>
+          <img data-image-component src="/media/uploads/2023/03/faayhaus-forest.jpg" alt="FAAY HAUS community makers walking through a teak forest" width="1800" height="1200" decoding="async" fetchpriority="high" />
+        </section>
+
+        <section class="about-belief">
+          <p class="eyebrow">Our starting point</p>
+          <h2>Craft should survive a Tuesday, not just a photo.</h2>
+          <p>We think an object can work well, use a material chosen with care, and carry a human hand you can see, all at once. That's just how we build things.</p>
+        </section>
+
+        <section class="about-worlds" aria-labelledby="about-worlds-title">
+          <div class="about-section-heading"><p class="eyebrow">Three product worlds</p><h2 id="about-worlds-title">Made for the routines that shape a day.</h2></div>
+          <div class="about-world-grid">
+            <div><span>01</span><h3>Cooking</h3><p>Kitchen tools shaped around real tasks: stirring, turning, serving, caring for cookware.</p></div>
+            <div><span>02</span><h3>Dining</h3><p>Bowls and spoons with grain and weight you can feel, made for the table you actually use.</p></div>
+            <div><span>03</span><h3>Daily care</h3><p>Bathing tools designed around reach, grip, texture, drying, and replaceable parts where applicable.</p></div>
+          </div>
+        </section>
+
+        <section class="about-collaboration">
+          <div class="about-mosaic">
+            <img data-image-component src="/media/uploads/2019/06/IMGL9202.jpg" alt="FAAY HAUS community artisans at work" width="1200" height="800" loading="lazy" decoding="async" />
+            <img data-image-component src="/media/uploads/2019/06/IMGL9372.jpg" srcset="/media/uploads/2019/06/IMGL9372-300x200.jpg 300w, /media/uploads/2019/06/IMGL9372-600x400.jpg 600w, /media/uploads/2019/06/IMGL9372-768x512.jpg 768w, /media/uploads/2019/06/IMGL9372-1024x683.jpg 1024w, /media/uploads/2019/06/IMGL9372.jpg 1200w" sizes="(max-width:600px) 50vw, (max-width:900px) 33vw, 25vw" alt="A maker shaping a FAAY HAUS wooden utensil" width="1200" height="800" loading="lazy" decoding="async" />
+            <img data-image-component src="/media/uploads/2019/06/IMGL9706.jpg" alt="Hands working on a FAAY HAUS product" width="1200" height="800" loading="lazy" decoding="async" />
+          </div>
+          <div class="about-collaboration-copy">
+            <p class="eyebrow">Community and collaboration</p>
+            <h2>Two kinds of expertise, one object.</h2>
+            <p>The people carving in Thailand bring years of hands-on knowledge and a feel for the wood. We bring back what people tell us after they've used the thing for a year.</p>
+            <p>Ideas move back and forth on the shape of a handle, the finish, the small details. Neither side gets the final word alone. What comes out the other end is usually better than what either side started with.</p>
+          </div>
+        </section>
+
+        <section class="about-proof">
+          <div>
+            <p class="eyebrow">Design in practice</p>
+            <h2>One handle taught us how this works.</h2>
+          </div>
+          <div>
+            <p>One of our first real collaborations came down to the handle of a single kitchen utensil. The makers knew how the wood wanted to be held. We brought feedback on comfort and how people actually cook today.</p>
+            <p>That exchange reflects how we want products to develop: through attention to the object, the material, and the person using it.</p>
+          </div>
+        </section>
+
+        <section class="about-materials">
+          <img data-image-component src="/media/uploads/2023/03/faayhaus-wood-scaled.jpg" alt="Natural material and wood grain used in FAAY HAUS products" width="2560" height="1707" loading="lazy" decoding="async" />
+          <div>
+            <p class="eyebrow">Material clarity</p>
+            <h2>Materials deserve an honest explanation.</h2>
+            <p>Our collection is mostly teak and loofah, sometimes both in the same object. Grain, color, even scent shift from piece to piece, the same way no two trees ever look quite alike.</p>
+            <p>Environmental responsibility shows up in specific choices and documented facts, not a general label. As our evidence and process improve, so does how clearly we explain them.</p>
+          </div>
+        </section>
+
+        <section class="about-feedback">
+          <p class="eyebrow">Continued improvement</p>
+          <h2>The object keeps evolving.</h2>
+          <p>We collect what people tell us after they've actually used the thing, and bring it back into how the next version gets shaped. A sale tells us it worked once. Feedback tells us if it's still working a year in.</p>
+        </section>
+
+        <section class="about-closing">
+          <p class="eyebrow">FAAY HAUS®</p>
+          <h2>Useful objects, shaped by community hands.</h2>
+          <p>Made to be used, understood, cared for, and used again.</p>
+          <a class="button" href="/products/">Explore the collection</a>
+        </section>
+      </article>
+    ) : (
+      <article class:list={['content-page', { article: isArticle }]}> 
+        {image && <img data-image-component class="article-hero" src={image} srcset={featuredSrcset(item)} sizes="(max-width:900px) 100vw, 1050px" alt={featuredAlt(item)} decoding="async" fetchpriority="high" />}
+        <div class="article-heading">
+          {
+            isArticle && (
+              <time datetime={item.date}>
+                {new Date(item.date).toLocaleDateString('en-US', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                })}
+              </time>
+            )
+          }
+          <h1>{clean(item.title.rendered)}</h1>
+        </div>
+        <div class="wp-content" set:html={content} />
+      </article>
+    )
+  }
+  {
+    isArticle && relatedPosts.length > 0 && (
+      <section class="related-stories" aria-labelledby="related-stories-title">
+        <div class="related-stories-heading">
+          <p>Continue reading</p>
+          <h2 id="related-stories-title">Related stories</h2>
+        </div>
+        <div class="related-stories-grid">
+          {relatedPosts.map((post) => <StoryCard post={post} excerpt={false} />)}
+        </div>
+      </section>
+    )
+  }
+</Base>

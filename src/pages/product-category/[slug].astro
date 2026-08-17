@@ -1,0 +1,24 @@
+---
+import Base from '../../layouts/Base.astro';
+import ProductCard from '../../components/ProductCard.astro';
+import products from '../../data/products.json';
+import { clean } from '../../lib';
+export function getStaticPaths() {
+  const categories = new Map();
+  for (const product of products) for (const category of product.categories || []) categories.set(category.slug, category);
+  return [...categories.values()].map((category) => ({ params: { slug: category.slug }, props: { category } }));
+}
+const { category } = Astro.props;
+const matches = products.filter((product) => product.categories?.some((item) => item.slug === category.slug));
+const categoryName = clean(category.name);
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: new URL('/', Astro.site).toString() },
+    { '@type': 'ListItem', position: 2, name: 'Products', item: new URL('/products/', Astro.site).toString() },
+    { '@type': 'ListItem', position: 3, name: categoryName },
+  ],
+};
+---
+<Base title={`${categoryName} — FAAY HAUS®`} description={`Handmade ${categoryName.toLowerCase()} from FAAY HAUS. ${matches.length} products, purchased through Amazon.`} schema={[breadcrumbSchema]}><section class="page-hero"><nav class="path" aria-label="Breadcrumb"><a href="/products/">Products</a></nav><h1>{categoryName}</h1><p>Explore handmade products in this collection. Purchases continue on Amazon.</p></section><section class="catalog"><div class="product-grid">{matches.map((product) => <ProductCard product={product} />)}</div></section></Base>

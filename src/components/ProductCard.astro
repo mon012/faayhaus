@@ -1,0 +1,5 @@
+---
+import {localMedia,clean,money,productSrcset} from '../lib';
+const {product}=Astro.props; const image=product.images?.[0]; const img=localMedia(image?.src);
+---
+<article class="product-card"><a href={`/product/${product.slug}/`}><div class="product-image"><img data-image-component src={img} srcset={productSrcset(image)} sizes="(max-width:600px) 100vw, (max-width:900px) 50vw, 340px" alt={image?.alt||clean(product.name)} loading="lazy" decoding="async"></div><h3>{clean(product.name)}</h3><p>{money(product.price)}</p><span class="text-link">View product <b>↗</b></span></a></article>

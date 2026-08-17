@@ -1,0 +1,4 @@
+---
+import Base from '../layouts/Base.astro'; import StoryCard from '../components/StoryCard.astro'; import posts from '../data/posts.json';
+---
+<Base title="Stories — FAAY HAUS®"><section class="page-hero"><h1>Useful knowledge, kept in use.</h1><p>Cooking, care, sustainability, and the small practices that help everyday objects last.</p></section><section class="articles-grid">{posts.map(post=><StoryCard post={post} headingLevel="h2" />)}</section></Base>

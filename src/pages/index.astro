@@ -1,0 +1,115 @@
+---
+import Base from '../layouts/Base.astro';
+import ProductCard from '../components/ProductCard.astro';
+import StoryCard from '../components/StoryCard.astro';
+import products from '../data/products.json';
+import posts from '../data/posts.json';
+import { localMedia, productSrcset } from '../lib';
+
+const productSlugs = [
+  'teak-wooden-spatula',
+  'teak-kitchen-ladle',
+  'mini-seasoning-condiment-teak-spoons',
+  'loofah-back-scrubber-stick-with-loofah-sponge-pads'
+];
+const heroProducts = productSlugs
+  .map((slug) => products.find((product) => product.slug === slug))
+  .filter((product) => product !== undefined);
+const storySlugs = [
+  'how-to-care-for-teak-utensils-a-heartcrafted-guide-to-preserving-your-kitchen-treasures',
+  'benefits-using-back-scrubber',
+  'can-wooden-spoons-grow-mold'
+];
+const stories = storySlugs
+  .map((slug) => posts.find((post) => post.slug === slug))
+  .filter((post) => post !== undefined);
+const categoryImages = {
+  kitchen: products.find((product) => product.slug === 'teak-wooden-spatula')?.images?.[0],
+  tableware: products.find((product) => product.slug === 'teak-chinese-soup-spoons')?.images?.[0],
+  bathing: products.find((product) => product.slug === 'loofah-back-scrubber-stick-with-loofah-sponge-pads')?.images?.[0]
+};
+// No real search endpoint exists on the site, so WebSite intentionally omits
+// a SearchAction — Google requires that action to be genuinely functional.
+const organizationSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'FAAY HAUS',
+  url: 'https://faayhaus.com',
+  logo: new URL('/media/uploads/2019/06/logo.png', Astro.site).toString(),
+};
+const websiteSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: 'FAAY HAUS',
+  url: 'https://faayhaus.com',
+};
+---
+
+<Base
+  title="FAAY HAUS® — Community-made objects for everyday life"
+  description="Handmade objects for cooking, dining, and daily care, shaped by community artisans in Thailand from thoughtfully chosen materials."
+  preload="/media/uploads/2023/03/faayhaus-main-scaled.jpg"
+  schema={[organizationSchema, websiteSchema]}
+>
+  <section class="hero hero-featured">
+    <div class="hero-copy">
+      <p class="eyebrow">Community-made in Thailand</p>
+      <h1>From community hands to everyday life.</h1>
+      <p>Teak spoons, ladles, and loofah tools, shaped by hand and finished with coconut oil to earn a place in your kitchen.</p>
+      <div class="hero-actions"><a class="button" href="/products/">Explore the collection</a><a class="button-secondary" href="/about/">Meet the makers</a></div>
+    </div>
+  </section>
+
+  <section class="category-paths" aria-labelledby="category-heading">
+    <div class="category-intro"><p class="eyebrow">Shop by category</p><h2 id="category-heading">Built into the rituals of cooking, dining, and care.</h2></div>
+    <div class="category-grid">
+      <a class="category-card" href="/product-category/tablewarekitchen/">
+        <img data-image-component src={localMedia(categoryImages.kitchen?.src)} srcset={productSrcset(categoryImages.kitchen)} sizes="(max-width:600px) 100vw, (max-width:900px) 50vw, 33vw" alt="Handcrafted teak kitchen utensil" width="1200" height="1200" loading="lazy" decoding="async">
+        <div><p>Kitchenware</p><h3>Tools that earn their spot by the stove.</h3><span>Explore Kitchenware →</span></div>
+      </a>
+      <a class="category-card" href="/product-category/tableware/">
+        <img data-image-component src={localMedia(categoryImages.tableware?.src)} srcset={productSrcset(categoryImages.tableware)} sizes="(max-width:600px) 100vw, (max-width:900px) 50vw, 33vw" alt="Handcrafted teak tableware" width="1200" height="1200" loading="lazy" decoding="async">
+        <div><p>Tableware</p><h3>Grain and texture you can feel at every meal.</h3><span>Explore Tableware →</span></div>
+      </a>
+      <a class="category-card" href="/product-category/bathing/">
+        <img data-image-component src={localMedia(categoryImages.bathing?.src)} srcset={productSrcset(categoryImages.bathing)} sizes="(max-width:600px) 100vw, (max-width:900px) 50vw, 33vw" alt="Loofah bathing tool with a teak handle" width="1200" height="1200" loading="lazy" decoding="async">
+        <div><p>Bathing</p><h3>Loofah and teak, made for the morning routine.</h3><span>Explore Bathing →</span></div>
+      </a>
+    </div>
+  </section>
+
+  <section class="collection">
+    <div class="section-head"><div><p class="eyebrow">Selected objects</p><h2>Made to be used, cared for, and used again.</h2></div><a href="/products/">View all products →</a></div>
+    <p class="section-lede">No two grains look the same, and that's the point.</p>
+    <div class="product-grid">{heroProducts.map((product) => <ProductCard product={product} />)}</div>
+  </section>
+
+  <section class="brand-belief">
+    <p class="eyebrow">What we believe</p>
+    <h2>Craft belongs in one object.</h2>
+    <p>Good design should feel as good in your hand as it looks on a shelf.</p>
+  </section>
+
+  <section class="process">
+    <img data-image-component src="/media/uploads/2023/03/faayhaus-team.jpg" alt="FAAY HAUS community artisans" loading="lazy" decoding="async">
+    <div>
+      <p class="eyebrow">Community and process</p>
+      <h2>Knowledge travels both ways.</h2>
+      <p>Makers in Thailand know the wood: how it takes oil, how it holds up to a hot pan, how it wears in. We bring back what people tell us after a year of daily use. Every object changes a little with each round trip.</p>
+      <dl><div><dt>Useful design</dt><dd>Shaped by what actually happens at the stove.</dd></div><div><dt>Considered materials</dt><dd>Explained honestly, piece by piece.</dd></div><div><dt>Community made</dt><dd>Carved by hand, one small batch at a time.</dd></div></dl>
+      <a class="text-link process-link" href="/about/">Meet the makers →</a>
+    </div>
+  </section>
+
+  <section class="materials">
+    <div><p class="eyebrow">Material clarity</p><h2>Know what the object is made from.</h2></div>
+    <p>Teak color shifts with the soil it grew in. Loofah softens with each wash. We'd rather explain that than hide behind one tidy label.</p>
+  </section>
+
+  <section class="stories">
+    <div class="section-head"><div><p class="eyebrow">Care and knowledge</p><h2>Use, care, and keep in use.</h2></div><a href="/articles/">Explore the stories →</a></div>
+    <div class="story-grid">{stories.map((post) => <StoryCard post={post} />)}</div>
+  </section>
+
+  <aside class="amazon-disclosure"><p>Purchases are completed on Amazon. Price, availability, shipping, and returns are confirmed there.</p><a class="text-link" href="/products/">Explore the collection →</a></aside>
+</Base>
