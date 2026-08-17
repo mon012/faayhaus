@@ -21,4 +21,4 @@ const breadcrumbSchema = {
   ],
 };
 ---
-<Base title={`${categoryName} — FAAY HAUS®`} description={`Handmade ${categoryName.toLowerCase()} from FAAY HAUS. ${matches.length} products, purchased through Amazon.`} schema={[breadcrumbSchema]}><section class="page-hero"><nav class="path" aria-label="Breadcrumb"><a href="/products/">Products</a></nav><h1>{categoryName}</h1><p>Explore handmade products in this collection. Purchases continue on Amazon.</p></section><section class="catalog"><div class="product-grid">{matches.map((product) => <ProductCard product={product} />)}</div></section></Base>
+<Base title={`${categoryName} — FAAY HAUS®`} description={`Handmade ${categoryName.toLowerCase()} from FAAY HAUS. ${matches.length} products, purchased through Amazon.`} schema={[breadcrumbSchema]}><section class="page-hero"><nav class="path" aria-label="Breadcrumb"><a href="/products/">Products</a></nav><h1>{categoryName}</h1><p>Explore handmade products in this collection. Purchases continue on Amazon.</p></section><section class="catalog"><div class="product-grid">{matches.map((product, i) => <ProductCard product={product} priority={i < 4} />)}</div></section></Base>

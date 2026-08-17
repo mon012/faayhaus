@@ -31,7 +31,7 @@ const groups = categoryOrder.map((slug) => {
     </div>
   </nav>
   <div class="grouped-catalog">
-    {groups.map((group) => (
+    {groups.map((group, groupIndex) => (
       <section class="product-group" id={group.slug}>
         <div class="product-group-heading">
           <div>
@@ -40,7 +40,7 @@ const groups = categoryOrder.map((slug) => {
           </div>
           <p>{group.description}</p>
         </div>
-        <div class="product-grid">{group.items.map((product) => <ProductCard product={product} />)}</div>
+        <div class="product-grid">{group.items.map((product, i) => <ProductCard product={product} priority={groupIndex === 0 && i < 4} />)}</div>
       </section>
     ))}
   </div>
