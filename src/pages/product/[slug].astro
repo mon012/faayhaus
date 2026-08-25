@@ -1,17 +1,20 @@
 ---
 import Base from '../../layouts/Base.astro';
 import ProductCard from '../../components/ProductCard.astro';
+import StoryCard from '../../components/StoryCard.astro';
 import products from '../../data/products.json';
-import { localMedia, clean, money, prepareEmbeddedMedia, productSrcset } from '../../lib';
+import posts from '../../data/posts.json';
+import { productSeo, guidePoolFor } from '../../data/seo';
+import { img, clean, money, prepareEmbeddedMedia, productSrcset, productAlt } from '../../lib';
 
 export function getStaticPaths() {
-  return products.map((product) => ({
+  return products.map((product, index) => ({
     params: { slug: product.slug },
-    props: { product },
+    props: { product, index },
   }));
 }
 
-const { product } = Astro.props;
+const { product, index } = Astro.props;
 const related = products
   .filter((candidate) =>
     candidate.slug !== product.slug &&
@@ -20,22 +23,52 @@ const related = products
   .slice(0, 3);
 const summaryHtml = prepareEmbeddedMedia(product.summaryHtml);
 const descriptionHtml = prepareEmbeddedMedia(product.descriptionHtml);
-const totalImages = product.images?.length || 0;
+const images = product.images || [];
+const totalImages = images.length;
 const category = product.categories?.[0];
+const seo = productSeo[product.slug];
+// Product names come straight from the Amazon listing, so most bury the term
+// people search for behind a size or a spec. `seo.title` overrides those; the
+// name is only used where it already reads as the search term.
+const pageTitle = `${seo?.title || clean(product.name)} | FAAY`;
+const pageDescription = seo?.description || clean(product.summaryHtml);
+
+// Guides that answer the question a shopper has while looking at this object.
+// The pool rotates by product index so internal links spread across the library
+// instead of every one of the 35 pages pointing at the same three articles.
+const pool = guidePoolFor(category?.slug);
+const guides = pool
+  .map((_, offset) => posts.find((post) => post.slug === pool[(index + offset) % pool.length]))
+  .filter((post, position, list) => post && list.indexOf(post) === position)
+  .slice(0, 3);
+
+const priceValue = product.price?.price
+  ? (Number(product.price.price) / 10 ** product.price.currency_minor_unit).toFixed(product.price.currency_minor_unit)
+  : undefined;
+// The price in the export is a snapshot of the Amazon listing, not a price this
+// site controls or charges. `priceValidUntil` states how long we are willing to
+// stand behind that snapshot, so Google re-checks rather than treating a stale
+// figure as a standing offer. Re-run the export before this window closes.
+const priceValidUntil = new Date(Date.now() + 30 * 864e5).toISOString().slice(0, 10);
 const productSchema = {
   '@context': 'https://schema.org',
   '@type': 'Product',
   name: clean(product.name),
   description: clean(product.summaryHtml),
-  image: (product.images || []).map((img) => new URL(localMedia(img.src), Astro.site).toString()),
+  image: images.map((image) => new URL(img(image.src), Astro.site).toString()),
   brand: { '@type': 'Brand', name: 'FAAY HAUS' },
-  ...(product.sku ? { sku: product.sku } : {}),
+  // The ASIN is the only stable identifier this catalog has; it is resolved
+  // from each amzn.to link and stored on the product in the export.
+  ...(product.asin ? { sku: product.asin, mpn: product.asin } : {}),
+  ...(category ? { category: clean(category.name) } : {}),
   offers: {
     '@type': 'Offer',
     url: product.amazonUrl,
     priceCurrency: product.price?.currency_code,
-    price: product.price?.price ? (Number(product.price.price) / 10 ** product.price.currency_minor_unit).toFixed(product.price.currency_minor_unit) : undefined,
+    price: priceValue,
+    ...(priceValue ? { priceValidUntil } : {}),
     availability: product.isInStock ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+    seller: { '@type': 'Organization', name: 'Amazon' },
   },
 };
 const breadcrumbSchema = {
@@ -49,4 +82,81 @@ const breadcrumbSchema = {
   ],
 };
 ---
-<Base title={`${clean(product.name)} — FAAY HAUS®`} description={clean(product.summaryHtml)} image={localMedia(product.images?.[0]?.src)} schema={[productSchema, breadcrumbSchema]}><section class="product-detail"><div class="gallery"><img data-image-component class="gallery-main" src={localMedia(product.images?.[0]?.src)} srcset={productSrcset(product.images?.[0])} sizes="(max-width:900px) 100vw, 55vw" alt={product.images?.[0]?.alt||(totalImages>1?`${clean(product.name)}, view 1 of ${totalImages}`:clean(product.name))} decoding="async" fetchpriority="high">{product.images?.slice(1,5).map((img,i)=><img data-image-component src={localMedia(img.src)} srcset={productSrcset(img)} sizes="(max-width:900px) 100vw, 55vw" alt={img.alt||`${clean(product.name)}, view ${i+2} of ${totalImages}`} loading="lazy" decoding="async">)}</div><div class="product-info"><nav class="path" aria-label="Breadcrumb"><a href="/products/">Products</a>{category && <> / <a href={`/product-category/${category.slug}/`}>{clean(category.name)}</a></>}</nav><h1>{clean(product.name)}</h1><div class="summary" set:html={summaryHtml}/><p class="price">{money(product.price)} <span>Price shown as a reference; Amazon may change it.</span></p><a class="button amazon" href={product.amazonUrl} target="_blank" rel="sponsored nofollow noopener">View on Amazon <b>↗</b></a><p class="external-note">You’ll continue to Amazon to check availability, current pricing, shipping, and purchase.</p><div class="origin"><h2>Made with a human origin.</h2><p>Sustainably sourced teak is shaped and finished by hand. Natural grain and color variation make each piece its own.</p></div></div></section><section class="description"><h2>Made for the way it is used.</h2><div set:html={descriptionHtml}/></section>{related.length>0&&<section class="collection"><div class="section-head"><h2>More from this collection.</h2></div><div class="product-grid related">{related.map(p=><ProductCard product={p}/>)}</div></section>}</Base>
+<Base
+  title={pageTitle}
+  description={pageDescription}
+  image={img(images[0]?.src)}
+  preload={img(images[0]?.src)}
+  preloadSrcset={productSrcset(images[0])}
+  preloadSizes="(max-width:900px) 100vw, 55vw"
+  schema={[productSchema, breadcrumbSchema]}
+>
+  <section class="product-detail">
+    {/*
+      Explicit width/height on every gallery image. The gallery renders at the
+      image's natural aspect ratio, so without them each photo collapses to zero
+      height and then pushes the page down as it decodes — a CLS hit on the
+      exact viewport where the buy CTA sits below the fold.
+    */}
+    <div class="gallery">
+      {images.slice(0, 5).map((image, position) => (
+        <img
+          data-image-component
+          class:list={{ 'gallery-main': position === 0 }}
+          src={img(image.src)}
+          srcset={productSrcset(image)}
+          sizes="(max-width:900px) 100vw, 55vw"
+          alt={productAlt(product, image, position, totalImages)}
+          width={image.width || 1200}
+          height={image.height || 1200}
+          loading={position === 0 ? undefined : 'lazy'}
+          decoding="async"
+          fetchpriority={position === 0 ? 'high' : undefined}
+        />
+      ))}
+    </div>
+    <div class="product-info">
+      <nav class="path" aria-label="Breadcrumb"><a href="/products/">Products</a>{category && <> / <a href={`/product-category/${category.slug}/`}>{clean(category.name)}</a></>}</nav>
+      <h1>{clean(product.name)}</h1>
+      <div class="summary" set:html={summaryHtml} />
+      <p class="price">{money(product.price)} <span>Price shown as a reference; Amazon may change it.</span></p>
+      <a class="button amazon" href={product.amazonUrl} target="_blank" rel="sponsored nofollow noopener">View on Amazon <b>↗</b></a>
+      <p class="external-note">You’ll continue to Amazon to check availability, current pricing, shipping, and purchase.</p>
+      <div class="origin">
+        <h2>Made with a human origin.</h2>
+        <p>Sustainably sourced teak is shaped and finished by hand. Natural grain and color variation make each piece its own.</p>
+      </div>
+    </div>
+  </section>
+  <section class="description">
+    <h2>{seo?.title ? `About the ${clean(product.name)}` : 'Made for the way it is used.'}</h2>
+    <div set:html={descriptionHtml} />
+  </section>
+  {guides.length > 0 && (
+    <section class="collection guides">
+      <div class="section-head">
+        <h2>Before you buy, worth knowing</h2>
+        <a class="text-link" href="/articles/">All guides</a>
+      </div>
+      <div class="story-grid">{guides.map((post) => <StoryCard post={post} headingLevel="h3" />)}</div>
+    </section>
+  )}
+  {related.length > 0 && (
+    <section class="collection">
+      <div class="section-head">
+        <h2>From the same collection</h2>
+        <a class="text-link" href="/products/">All products</a>
+      </div>
+      <div class="product-grid related">{related.map((item) => <ProductCard product={item} />)}</div>
+    </section>
+  )}
+  {/*
+    On phones the gallery stacks up to five full-width photos above the buy
+    button, so the only CTA on the page sits several screens down. This bar
+    keeps it reachable without duplicating it into the layout above.
+  */}
+  <a class="sticky-cta" href={product.amazonUrl} target="_blank" rel="sponsored nofollow noopener">
+    <span>{money(product.price)} <small>on Amazon</small></span>
+    <b>View on Amazon ↗</b>
+  </a>
+</Base>

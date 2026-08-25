@@ -3,7 +3,8 @@ import Base from '../layouts/Base.astro';
 import StoryCard from '../components/StoryCard.astro';
 import posts from '../data/posts.json';
 import pages from '../data/pages.json';
-import { featured, featuredAlt, featuredSrcset, clean, stripDuplicateTitle, prepareEmbeddedMedia } from '../lib';
+import { featured, featuredAlt, featuredSrcset, clean, stripDuplicateTitle, prepareEmbeddedMedia, img } from '../lib';
+import { contentSeo } from '../data/seo';
 
 export function getStaticPaths() {
   const excluded = new Set(['articles', 'store', 'cart', 'checkout', 'my-account', 'h']);
@@ -25,7 +26,16 @@ const isArticle = item.kind === 'post';
 const isAbout = item.slug === 'about';
 // The About page renders hand-written sections below instead of its imported
 // WordPress body, so only non-About entries need the content pipeline.
-const content = isAbout ? '' : prepareEmbeddedMedia(stripDuplicateTitle(item.content.rendered));
+const rawContent = isAbout ? '' : stripDuplicateTitle(item.content.rendered);
+// The Contact page ships its form as a <div data-form-id> plus an external
+// <script>. Anything injected with set:html is parsed, never executed, so that
+// script tag has always been inert and the form has always rendered as an empty
+// div. Extract the id here and mount the embed from the template below, where
+// Astro can emit a script the browser actually runs.
+const embeddedFormId = rawContent.match(/data-form-id="([0-9a-f-]+)"/i)?.[1];
+const content = prepareEmbeddedMedia(
+  rawContent.replace(/<script\b[^>]*src="https:\/\/cdn\.deftform\.com\/embed\.js"[^>]*><\/script>/gi, ''),
+);
 // Imported pages carry no taxonomy, so only post entries have these keys.
 const itemCategories = new Set<number>('categories' in item ? item.categories : []);
 const itemTags = new Set<number>('tags' in item ? item.tags : []);
@@ -42,12 +52,43 @@ const relatedPosts = isArticle
       .slice(0, 3)
       .map(({ post }) => post)
   : [];
+const seo = contentSeo[item.slug];
+// Articles get no brand suffix: they compete on informational intent, where the
+// brand name adds nothing and only eats into the ~60 characters Google shows.
+const pageTitle = isAbout
+  ? 'About FAAY HAUS — Teak Objects Made in Thailand'
+  : seo?.title || `${clean(item.title.rendered)} | FAAY`;
+const pageDescription = isAbout
+  ? 'How FAAY HAUS® works with community makers in Thailand on practical design and thoughtfully chosen materials to shape objects for cooking, dining, and daily care.'
+  : seo?.description || clean(item.excerpt?.rendered || '');
+
+// FAQPage markup, but only where the article genuinely answers questions on the
+// page: a heading phrased as a question followed by prose. Google requires the
+// answer to be visible to the reader, so this reads the rendered body rather
+// than asserting Q&A that isn't there. Under two pairs, no schema is emitted.
+const faqPairs = isArticle
+  ? [...rawContent.matchAll(/<h[23][^>]*>([^<]*\?)\s*<\/h[23]>([\s\S]*?)(?=<h[23]|$)/gi)]
+      .map(([, question, body]) => ({ question: clean(question), answer: clean(body).slice(0, 500) }))
+      .filter((pair) => pair.question.length > 10 && pair.answer.length > 60)
+      .slice(0, 8)
+  : [];
+const faqSchema = faqPairs.length >= 2 ? {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqPairs.map((pair) => ({
+    '@type': 'Question',
+    name: pair.question,
+    acceptedAnswer: { '@type': 'Answer', text: pair.answer },
+  })),
+} : null;
+
 const articleSchema = isArticle ? {
   '@context': 'https://schema.org',
   '@type': 'Article',
   headline: clean(item.title.rendered),
-  description: clean(item.excerpt?.rendered || ''),
+  description: seo?.description || clean(item.excerpt?.rendered || ''),
   ...(image ? { image: [new URL(image, Astro.site).toString()] } : {}),
+  mainEntityOfPage: { '@type': 'WebPage', '@id': new URL(`/${item.slug}/`, Astro.site).toString() },
   datePublished: item.date,
   dateModified: item.modified || item.date,
   author: { '@type': 'Organization', name: item._embedded?.author?.[0]?.name || 'FAAY HAUS' },
@@ -69,14 +110,14 @@ const breadcrumbSchema = isArticle ? {
 ---
 
 <Base
-  title={isAbout ? 'About — FAAY HAUS®' : `${clean(item.title.rendered)} — FAAY HAUS®`}
-  description={isAbout ? 'How FAAY HAUS® works with community makers in Thailand on practical design and thoughtfully chosen materials to shape objects for cooking, dining, and daily care.' : clean(item.excerpt?.rendered || '')}
+  title={pageTitle}
+  description={pageDescription}
   image={image || undefined}
-  preload={isAbout ? '/media/uploads/2023/03/faayhaus-forest.jpg' : image || undefined}
+  preload={isAbout ? img('/media/uploads/2023/03/faayhaus-forest.jpg') : image || undefined}
   type={isArticle ? 'article' : 'website'}
   publishedTime={isArticle ? item.date : undefined}
   modifiedTime={isArticle ? item.modified : undefined}
-  schema={[articleSchema, breadcrumbSchema].filter(Boolean)}
+  schema={[articleSchema, breadcrumbSchema, faqSchema].filter(Boolean)}
 >
   {
     isAbout ? (
@@ -87,7 +128,7 @@ const breadcrumbSchema = isArticle ? {
             <h1>From a maker's hands to your kitchen drawer.</h1>
             <p>Every spoon starts with someone in Thailand who knows the wood, and ends with someone in your kitchen who trusts it.</p>
           </div>
-          <img data-image-component src="/media/uploads/2023/03/faayhaus-forest.jpg" alt="FAAY HAUS community makers walking through a teak forest" width="1800" height="1200" decoding="async" fetchpriority="high" />
+          <img data-image-component src={img("/media/uploads/2023/03/faayhaus-forest.jpg")} alt="FAAY HAUS community makers walking through a teak forest" width="1800" height="1200" decoding="async" fetchpriority="high" />
         </section>
 
         <section class="about-belief">
@@ -107,9 +148,9 @@ const breadcrumbSchema = isArticle ? {
 
         <section class="about-collaboration">
           <div class="about-mosaic">
-            <img data-image-component src="/media/uploads/2019/06/IMGL9202.jpg" alt="FAAY HAUS community artisans at work" width="1200" height="800" loading="lazy" decoding="async" />
-            <img data-image-component src="/media/uploads/2019/06/IMGL9372.jpg" srcset="/media/uploads/2019/06/IMGL9372-300x200.jpg 300w, /media/uploads/2019/06/IMGL9372-600x400.jpg 600w, /media/uploads/2019/06/IMGL9372-768x512.jpg 768w, /media/uploads/2019/06/IMGL9372-1024x683.jpg 1024w, /media/uploads/2019/06/IMGL9372.jpg 1200w" sizes="(max-width:600px) 50vw, (max-width:900px) 33vw, 25vw" alt="A maker shaping a FAAY HAUS wooden utensil" width="1200" height="800" loading="lazy" decoding="async" />
-            <img data-image-component src="/media/uploads/2019/06/IMGL9706.jpg" alt="Hands working on a FAAY HAUS product" width="1200" height="800" loading="lazy" decoding="async" />
+            <img data-image-component src={img("/media/uploads/2019/06/IMGL9202.jpg")} alt="FAAY HAUS community artisans at work" width="1200" height="800" loading="lazy" decoding="async" />
+            <img data-image-component src={img("/media/uploads/2019/06/IMGL9372.jpg")} srcset={[['-300x200',300],['-600x400',600],['-768x512',768],['-1024x683',1024],['',1200]].map(([suffix,width])=>`${img(`/media/uploads/2019/06/IMGL9372${suffix}.jpg`)} ${width}w`).join(', ')} sizes="(max-width:600px) 50vw, (max-width:900px) 33vw, 25vw" alt="A maker shaping a FAAY HAUS wooden utensil" width="1200" height="800" loading="lazy" decoding="async" />
+            <img data-image-component src={img("/media/uploads/2019/06/IMGL9706.jpg")} alt="Hands working on a FAAY HAUS product" width="1200" height="800" loading="lazy" decoding="async" />
           </div>
           <div class="about-collaboration-copy">
             <p class="eyebrow">Community and collaboration</p>
@@ -131,7 +172,7 @@ const breadcrumbSchema = isArticle ? {
         </section>
 
         <section class="about-materials">
-          <img data-image-component src="/media/uploads/2023/03/faayhaus-wood-scaled.jpg" alt="Natural material and wood grain used in FAAY HAUS products" width="2560" height="1707" loading="lazy" decoding="async" />
+          <img data-image-component src={img("/media/uploads/2023/03/faayhaus-wood-scaled.jpg")} alt="Natural material and wood grain used in FAAY HAUS products" width="2560" height="1707" loading="lazy" decoding="async" />
           <div>
             <p class="eyebrow">Material clarity</p>
             <h2>Materials deserve an honest explanation.</h2>
@@ -169,8 +210,14 @@ const breadcrumbSchema = isArticle ? {
             )
           }
           <h1>{clean(item.title.rendered)}</h1>
+          {isArticle && item.modified && item.modified.slice(0, 10) !== item.date.slice(0, 10) && (
+            <p class="updated">
+              Updated <time datetime={item.modified}>{new Date(item.modified).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</time>
+            </p>
+          )}
         </div>
         <div class="wp-content" set:html={content} />
+        {embeddedFormId && <script is:inline async src="https://cdn.deftform.com/embed.js"></script>}
       </article>
     )
   }

@@ -4,7 +4,7 @@ import ProductCard from '../components/ProductCard.astro';
 import StoryCard from '../components/StoryCard.astro';
 import products from '../data/products.json';
 import posts from '../data/posts.json';
-import { localMedia, productSrcset } from '../lib';
+import { img, productSrcset } from '../lib';
 
 const productSlugs = [
   'teak-wooden-spatula',
@@ -34,21 +34,49 @@ const organizationSchema = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
   name: 'FAAY HAUS',
+  legalName: 'Fresh for Life Co., Ltd.',
   url: 'https://faayhaus.com',
   logo: new URL('/media/uploads/2019/06/logo.png', Astro.site).toString(),
+  image: new URL('/og-default.jpg', Astro.site).toString(),
+  email: 'support@faayhaus.com',
+  description:
+    'FAAY HAUS makes handmade teak kitchenware, tableware and loofah bathing goods with community artisans in Thailand. Products are sold through Amazon.',
+  foundingLocation: { '@type': 'Place', name: 'Bangkok, Thailand' },
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: '248/52 Mu17 Sala Thammasop, Thawi Wattana',
+    addressLocality: 'Bangkok',
+    postalCode: '10170',
+    addressCountry: 'TH',
+  },
+  contactPoint: {
+    '@type': 'ContactPoint',
+    contactType: 'customer support',
+    email: 'support@faayhaus.com',
+    availableLanguage: ['en', 'th'],
+  },
+  knowsAbout: [
+    'teak kitchen utensils',
+    'wooden cooking utensils care',
+    'natural loofah bathing tools',
+    'handmade tableware',
+  ],
 };
 const websiteSchema = {
   '@context': 'https://schema.org',
   '@type': 'WebSite',
   name: 'FAAY HAUS',
   url: 'https://faayhaus.com',
+  publisher: { '@type': 'Organization', name: 'FAAY HAUS' },
 };
 ---
 
 <Base
-  title="FAAY HAUS® — Community-made objects for everyday life"
-  description="Handmade objects for cooking, dining, and daily care, shaped by community artisans in Thailand from thoughtfully chosen materials."
-  preload="/media/uploads/2023/03/faayhaus-main-scaled.jpg"
+  title="FAAY HAUS® — Handmade Teak Kitchen Utensils"
+  description="Hand-carved teak kitchen utensils, tableware and natural loofah bathing tools, made with community artisans in Thailand. Every piece is bought on Amazon."
+  preload="/media/hero/faayhaus-main-w1920.webp"
+  preloadSrcset="/media/hero/faayhaus-main-w960.webp 960w, /media/hero/faayhaus-main-w1440.webp 1440w, /media/hero/faayhaus-main-w1920.webp 1920w"
+  preloadSizes="100vw"
   schema={[organizationSchema, websiteSchema]}
 >
   <section class="hero hero-featured">
@@ -63,16 +91,16 @@ const websiteSchema = {
   <section class="category-paths" aria-labelledby="category-heading">
     <div class="category-intro"><p class="eyebrow">Shop by category</p><h2 id="category-heading">Built into the rituals of cooking, dining, and care.</h2></div>
     <div class="category-grid">
-      <a class="category-card" href="/product-category/tablewarekitchen/">
-        <img data-image-component src={localMedia(categoryImages.kitchen?.src)} srcset={productSrcset(categoryImages.kitchen)} sizes="(max-width:600px) 100vw, (max-width:900px) 50vw, 33vw" alt="Handcrafted teak kitchen utensil" width="1200" height="1200" loading="lazy" decoding="async">
+      <a class="category-card" href="/product-category/kitchenware/">
+        <img data-image-component src={img(categoryImages.kitchen?.src)} srcset={productSrcset(categoryImages.kitchen)} sizes="(max-width:600px) 100vw, (max-width:900px) 50vw, 33vw" alt="Handcrafted teak kitchen utensil" width="1200" height="1200" loading="lazy" decoding="async">
         <div><p>Kitchenware</p><h3>Tools that earn their spot by the stove.</h3><span>Explore Kitchenware →</span></div>
       </a>
       <a class="category-card" href="/product-category/tableware/">
-        <img data-image-component src={localMedia(categoryImages.tableware?.src)} srcset={productSrcset(categoryImages.tableware)} sizes="(max-width:600px) 100vw, (max-width:900px) 50vw, 33vw" alt="Handcrafted teak tableware" width="1200" height="1200" loading="lazy" decoding="async">
+        <img data-image-component src={img(categoryImages.tableware?.src)} srcset={productSrcset(categoryImages.tableware)} sizes="(max-width:600px) 100vw, (max-width:900px) 50vw, 33vw" alt="Handcrafted teak tableware" width="1200" height="1200" loading="lazy" decoding="async">
         <div><p>Tableware</p><h3>Grain and texture you can feel at every meal.</h3><span>Explore Tableware →</span></div>
       </a>
       <a class="category-card" href="/product-category/bathing/">
-        <img data-image-component src={localMedia(categoryImages.bathing?.src)} srcset={productSrcset(categoryImages.bathing)} sizes="(max-width:600px) 100vw, (max-width:900px) 50vw, 33vw" alt="Loofah bathing tool with a teak handle" width="1200" height="1200" loading="lazy" decoding="async">
+        <img data-image-component src={img(categoryImages.bathing?.src)} srcset={productSrcset(categoryImages.bathing)} sizes="(max-width:600px) 100vw, (max-width:900px) 50vw, 33vw" alt="Loofah bathing tool with a teak handle" width="1200" height="1200" loading="lazy" decoding="async">
         <div><p>Bathing</p><h3>Loofah and teak, made for the morning routine.</h3><span>Explore Bathing →</span></div>
       </a>
     </div>

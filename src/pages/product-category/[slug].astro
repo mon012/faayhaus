@@ -1,16 +1,40 @@
 ---
 import Base from '../../layouts/Base.astro';
 import ProductCard from '../../components/ProductCard.astro';
+import StoryCard from '../../components/StoryCard.astro';
 import products from '../../data/products.json';
+import posts from '../../data/posts.json';
+import { categoryCopy } from '../../data/categories';
+import { guidePoolFor } from '../../data/seo';
 import { clean } from '../../lib';
+
 export function getStaticPaths() {
   const categories = new Map();
   for (const product of products) for (const category of product.categories || []) categories.set(category.slug, category);
   return [...categories.values()].map((category) => ({ params: { slug: category.slug }, props: { category } }));
 }
+
 const { category } = Astro.props;
 const matches = products.filter((product) => product.categories?.some((item) => item.slug === category.slug));
 const categoryName = clean(category.name);
+const copy = categoryCopy[category.slug];
+const guides = guidePoolFor(category.slug)
+  .slice(0, 3)
+  .map((slug) => posts.find((post) => post.slug === slug))
+  .filter(Boolean);
+
+const itemListSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  name: categoryName,
+  numberOfItems: matches.length,
+  itemListElement: matches.map((product, index) => ({
+    '@type': 'ListItem',
+    position: index + 1,
+    url: new URL(`/product/${product.slug}/`, Astro.site).toString(),
+    name: clean(product.name),
+  })),
+};
 const breadcrumbSchema = {
   '@context': 'https://schema.org',
   '@type': 'BreadcrumbList',
@@ -21,4 +45,37 @@ const breadcrumbSchema = {
   ],
 };
 ---
-<Base title={`${categoryName} — FAAY HAUS®`} description={`Handmade ${categoryName.toLowerCase()} from FAAY HAUS. ${matches.length} products, purchased through Amazon.`} schema={[breadcrumbSchema]}><section class="page-hero"><nav class="path" aria-label="Breadcrumb"><a href="/products/">Products</a></nav><h1>{categoryName}</h1><p>Explore handmade products in this collection. Purchases continue on Amazon.</p></section><section class="catalog"><div class="product-grid">{matches.map((product, i) => <ProductCard product={product} priority={i < 4} />)}</div></section></Base>
+<Base
+  title={`${copy?.title || categoryName} | FAAY`}
+  description={copy?.description || `Handmade ${categoryName.toLowerCase()} from FAAY HAUS. ${matches.length} pieces, each purchased through Amazon.`}
+  schema={[itemListSchema, breadcrumbSchema]}
+>
+  <section class="page-hero">
+    <nav class="path" aria-label="Breadcrumb"><a href="/products/">Products</a></nav>
+    <h1>{categoryName}</h1>
+    <p>{copy?.tagline || 'Explore handmade products in this collection.'} Purchases continue on Amazon.</p>
+  </section>
+  <section class="catalog">
+    <div class="product-grid">{matches.map((product, i) => <ProductCard product={product} priority={i < 4} />)}</div>
+  </section>
+  {/*
+    Unique prose per category. Without it these pages were a grid plus one
+    sentence — the same products as /products/, competing for the same terms
+    with nothing of their own to rank on.
+  */}
+  {copy && (
+    <section class="category-intro-copy">
+      <h2>About FAAY HAUS {categoryName.toLowerCase()}</h2>
+      {copy.intro.map((paragraph) => <p>{paragraph}</p>)}
+    </section>
+  )}
+  {guides.length > 0 && (
+    <section class="collection guides">
+      <div class="section-head">
+        <h2>Guides for this collection</h2>
+        <a class="text-link" href="/articles/">All guides</a>
+      </div>
+      <div class="story-grid">{guides.map((post) => <StoryCard post={post} headingLevel="h3" />)}</div>
+    </section>
+  )}
+</Base>

@@ -1,4 +1,25 @@
+# Dead WooCommerce routes. /store/ still earned 24 clicks and 252 impressions in
+# the last 12 months, so this is live traffic, not just link equity.
 /store/ /products/ 301
+/shop/ /products/ 301
 /cart/ /products/ 301
 /checkout/ /products/ 301
 /my-account/ /products/ 301
+
+# The category slug was "tablewarekitchen" — unreadable in a SERP and a poor
+# match for "wooden kitchen utensils" (5,400/mo). Renamed to /kitchenware/.
+/product-category/tablewarekitchen/ /product-category/kitchenware/ 301
+/product-category/tablewarekitchen/* /product-category/kitchenware/:splat 301
+
+# WordPress taxonomy and feed archives that this build does not recreate.
+/category/* /articles/ 301
+/tag/* /articles/ 301
+/author/* /about/ 301
+/product-tag/* /products/ 301
+/feed/ /articles/ 301
+/comments/feed/ /articles/ 301
+/blog/ /articles/ 301
+/blog/* /:splat 301
+
+# A stray WordPress page in the export that was never real content.
+/h/ / 301

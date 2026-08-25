@@ -1,4 +1,40 @@
 ---
-import Base from '../layouts/Base.astro'; import StoryCard from '../components/StoryCard.astro'; import posts from '../data/posts.json';
+import Base from '../layouts/Base.astro';
+import StoryCard from '../components/StoryCard.astro';
+import posts from '../data/posts.json';
+import { clean } from '../lib';
+
+// This page previously passed no description at all, so it inherited the site
+// default and shipped a meta description identical to the homepage's.
+const itemListSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  name: 'FAAY HAUS ideas and guides',
+  numberOfItems: posts.length,
+  itemListElement: posts.map((post, index) => ({
+    '@type': 'ListItem',
+    position: index + 1,
+    url: new URL(`/${post.slug}/`, Astro.site).toString(),
+    name: clean(post.title.rendered),
+  })),
+};
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: new URL('/', Astro.site).toString() },
+    { '@type': 'ListItem', position: 2, name: 'Ideas & Guides' },
+  ],
+};
 ---
-<Base title="Stories — FAAY HAUS®"><section class="page-hero"><h1>Useful knowledge, kept in use.</h1><p>Cooking, care, sustainability, and the small practices that help everyday objects last.</p></section><section class="articles-grid">{posts.map(post=><StoryCard post={post} headingLevel="h2" />)}</section></Base>
+<Base
+  title="Ideas & Guides: Caring for Wooden Utensils | FAAY"
+  description={`${posts.length} guides on wooden and teak utensils — cleaning, oiling, mold, nonstick safety, teak versus bamboo — plus cooking and sustainable-kitchen notes.`}
+  schema={[itemListSchema, breadcrumbSchema]}
+>
+  <section class="page-hero">
+    <h1>Useful knowledge, kept in use.</h1>
+    <p>Cooking, care, sustainability, and the small practices that help everyday objects last.</p>
+  </section>
+  <section class="articles-grid">{posts.map(post => <StoryCard post={post} headingLevel="h2" />)}</section>
+</Base>

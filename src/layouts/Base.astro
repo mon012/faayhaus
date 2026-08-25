@@ -4,8 +4,10 @@ import { jsonLd } from '../lib';
 const {
   title='FAAY HAUS®',
   description='Community-made objects for cooking, dining, and daily care.',
-  image='/media/uploads/2023/03/faayhaus-main-scaled.jpg',
+  image='/og-default.jpg',
   preload,
+  preloadSrcset,
+  preloadSizes,
   type='website',
   publishedTime,
   modifiedTime,
@@ -13,7 +15,26 @@ const {
 }=Astro.props;
 const path=Astro.url.pathname;
 const absoluteImage=new URL(image,Astro.site);
+// Cloudflare Web Analytics. Cookie-free, so it needs no consent banner, and it
+// renders only when a token is configured — a missing key leaves a clean <head>
+// rather than a broken beacon. Set PUBLIC_CF_BEACON_TOKEN in the Cloudflare
+// Pages environment (and .env locally).
+//
+// If the Pages project has Web Analytics enabled in the dashboard, Cloudflare
+// injects this beacon itself and no token is needed here; setting one anyway
+// would load it twice, so use one route or the other, not both.
+const cfBeacon=import.meta.env.PUBLIC_CF_BEACON_TOKEN;
 ---
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>{title}</title><meta name="description" content={description}><link rel="canonical" href={Astro.url}><meta property="og:type" content={type}><meta property="og:site_name" content="FAAY HAUS"><meta property="og:url" content={Astro.url}><meta property="og:title" content={title}><meta property="og:description" content={description}><meta property="og:image" content={absoluteImage}>{type==='article'&&publishedTime&&<meta property="article:published_time" content={publishedTime}>}{type==='article'&&modifiedTime&&<meta property="article:modified_time" content={modifiedTime}>}<meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content={title}><meta name="twitter:description" content={description}><meta name="twitter:image" content={absoluteImage}><link rel="icon" href="/media/uploads/2019/06/logo.png">{preload&&<link rel="preload" as="image" href={preload} fetchpriority="high">}{schema.map((item:unknown)=><script type="application/ld+json" is:inline set:html={jsonLd(item)} />)}</head><body>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>{title}</title><meta name="description" content={description}><link rel="canonical" href={Astro.url}>{/*
+  Fonts are linked rather than @import-ed from inside global.css. An @import
+  chains HTML -> CSS -> Google's CSS -> the font files, so the browser cannot
+  start fetching the stylesheet until our own CSS has parsed. Preconnecting and
+  linking here lets both requests start in the same round trip.
+*/}<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Barlow+Condensed:wght@600&display=swap"><link rel="icon" href="/favicon-32.png" sizes="32x32"><link rel="icon" href="/favicon-192.png" sizes="192x192"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest"><meta name="theme-color" content="#f2f3ef"><meta property="og:type" content={type}><meta property="og:site_name" content="FAAY HAUS"><meta property="og:locale" content="en_US"><meta property="og:url" content={Astro.url}><meta property="og:title" content={title}><meta property="og:description" content={description}><meta property="og:image" content={absoluteImage}><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">{type==='article'&&publishedTime&&<meta property="article:published_time" content={publishedTime}>}{type==='article'&&modifiedTime&&<meta property="article:modified_time" content={modifiedTime}>}<meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content={title}><meta name="twitter:description" content={description}><meta name="twitter:image" content={absoluteImage}>{preload&&<link rel="preload" as="image" href={preload} imagesrcset={preloadSrcset} imagesizes={preloadSizes} fetchpriority="high">}{schema.map((item:unknown)=><script type="application/ld+json" is:inline set:html={jsonLd(item)} />)}{cfBeacon&&<script is:inline defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon={JSON.stringify({token:cfBeacon})}></script>}</head><body>
 <!-- BRAND FLOW: everyday need → useful design → material truth → community craft → continued use. FAAY HAUS spans Kitchenware, Tableware, and Bathing; product-level theses must not replace the master brand story. -->
-<a class="skip" href="#content">Skip to content</a><header><a class="brand" href="/">FAAY HAUS<sup>®</sup></a><nav aria-label="Main"><a class:list={{active:path.startsWith('/products')||path.startsWith('/product/')}} href="/products/">Products</a><a href="/articles/">Ideas &amp; Guides</a><a href="/about/">About</a></nav><div class="header-tools"><a class="search" href="/products/" aria-label="Browse products"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="m16 16 5 5"/></svg></a><details class="mobile-menu"><summary aria-label="Open menu"><span></span><span></span></summary><nav aria-label="Mobile"><a href="/products/">Products</a><a href="/articles/">Ideas &amp; Guides</a><a href="/about/">About</a></nav></details></div></header><main id="content"><slot/></main><footer><div><a class="brand" href="/">FAAY HAUS<sup>®</sup></a><p>Useful objects, shaped by community hands.</p></div><nav><a href="/products/">Products</a><a href="/articles/">Ideas &amp; Guides</a><a href="/about/">About</a><a href="/contact/">Contact</a></nav><nav><a href="/shipping/">Shipping</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="/return/">Returns</a></nav><small>© {new Date().getFullYear()} FAAY HAUS. All Rights Reserved.</small></footer></body></html>
+<a class="skip" href="#content">Skip to content</a><header><a class="brand" href="/">FAAY HAUS<sup>®</sup></a><nav aria-label="Main"><a class:list={{active:path.startsWith('/products')||path.startsWith('/product/')}} href="/products/">Products</a><a href="/articles/">Ideas &amp; Guides</a><a href="/about/">About</a></nav><div class="header-tools"><a class="search" href="/products/" aria-label="Browse products"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="m16 16 5 5"/></svg></a><details class="mobile-menu"><summary aria-label="Open menu"><span></span><span></span></summary><nav aria-label="Mobile"><a href="/products/">Products</a><a href="/articles/">Ideas &amp; Guides</a><a href="/about/">About</a></nav></details></div></header><main id="content"><slot/></main><footer><div><a class="brand" href="/">FAAY HAUS<sup>®</sup></a><p>Useful objects, shaped by community hands.</p>{/*
+  The registered entity, address and support address were previously stated only
+  inside the Privacy Policy body. Search engines and answer engines both treat a
+  visible, consistent name/address/contact as a trust signal, and the
+  Organization schema below now points at exactly this markup.
+*/}<address class="nap"><strong>Fresh for Life Co., Ltd.</strong><span>248/52 Mu17 Sala Thammasop, Thawi Wattana, Bangkok 10170, Thailand</span><a href="mailto:support@faayhaus.com">support@faayhaus.com</a></address></div><nav><a href="/products/">Products</a><a href="/articles/">Ideas &amp; Guides</a><a href="/about/">About</a><a href="/contact/">Contact</a></nav><nav><a href="/shipping/">Shipping</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="/return/">Returns</a></nav><small>© {new Date().getFullYear()} FAAY HAUS. All Rights Reserved. Products are sold and fulfilled by Amazon; as an Amazon Associate we earn from qualifying purchases.</small></footer></body></html>
