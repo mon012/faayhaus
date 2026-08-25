@@ -1,1 +1,22 @@
-{"name":"faayhaus-astro","private":true,"type":"module","scripts":{"dev":"astro dev","build":"astro build","preview":"astro preview","check":"astro check"},"dependencies":{"@astrojs/sitemap":"^3.7.3","astro":"5.18.2"},"devDependencies":{"@astrojs/check":"^0.9.10","@types/node":"^26.2.0","typescript":"^5.9.0"}}
+{
+  "name": "faayhaus-astro",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "npm run media && astro build",
+    "preview": "astro preview",
+    "check": "astro check",
+    "media": "node scripts/optimize-media.mjs"
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "^3.7.3",
+    "astro": "5.18.2",
+    "sharp": "^0.34.5"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "@types/node": "^26.2.0",
+    "typescript": "^5.9.0"
+  }
+}
