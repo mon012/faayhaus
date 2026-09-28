@@ -23,3 +23,7 @@
 
 # A stray WordPress page in the export that was never real content.
 /h/ / 301
+
+# Merged into the teak-vs-bamboo guide (Sep 2026): the two pages competed for
+# "is teak wood good for cooking utensils" and split the ranking.
+/is-teak-good-cooking-utensils/ /teak-bamboo-cooking-utensils/ 301

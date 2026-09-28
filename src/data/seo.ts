@@ -34,7 +34,10 @@ export const productSeo: Record<string, SeoEntry> = {
   // "wooden slotted spatula" 320 / "slotted spatula" 880. GSC: 1,317
   // impressions at position 6.5 and a single click — the worst CTR on the site.
   'teak-wood-slotted-spatula': {
-    title: 'Teak Wooden Slotted Spatula — Wide Head, Long Handle',
+    // Sep 2026: the Aug rewrite led with "Teak Wooden" and the page fell from
+    // position 6.7 to 13, dropping out for "slotted spatula" entirely. Lead with
+    // the query again.
+    title: 'Slotted Spatula — Teak Wood, Wide Head, Long Handle',
     description:
       'A wide teak wooden slotted spatula that drains as it lifts. Long handle, heat resistant, gentle on nonstick and cast iron. Check the current price on Amazon.',
   },
@@ -205,7 +208,9 @@ export const productSeo: Record<string, SeoEntry> = {
   // "loofah on a stick" 1,600 / "long handle back scrubber" 1,900 / "back
   // scrubber for shower" 5,400. GSC: 695 impressions, zero clicks.
   'loofah-back-scrubber-stick-with-loofah-sponge-pads': {
-    title: 'Loofah on a Stick — 17" Long Handle Back Scrubber',
+    // Sep 2026: "back scrubber" slid to position 17 after the Aug rewrite moved
+    // it to the end of the title. It is the 5,400/mo head term, so it leads.
+    title: 'Back Scrubber — Loofah on a 17" Long Teak Handle',
     description:
       'A back scrubber that actually reaches: 17" teak handle, two natural loofah pads, real exfoliation and relief from itchy skin you cannot get to. On Amazon.',
   },
@@ -233,9 +238,12 @@ export const contentSeo: Record<string, SeoEntry> = {
   // 2,821 impressions, 32 clicks (1.1% CTR) at position 6.0 — the single
   // biggest CTR loss on the site. Query cluster is comparison intent.
   'teak-bamboo-cooking-utensils': {
-    title: 'Teak vs Bamboo Cooking Utensils: Which Lasts Longer?',
+    // Sep 2026: now also the home of is-teak-good-cooking-utensils, merged in
+    // because both pages competed for "is teak wood good for cooking utensils"
+    // (453 impressions/25 days) and the weaker one sat at position 14.6.
+    title: 'Is Teak Good for Cooking Utensils? Teak vs Bamboo',
     description:
-      'Teak or bamboo for cooking utensils? Compared on water resistance, cracking, heat, splintering and lifespan — with the honest case for each. Read first.',
+      'Yes — teak is dense, oily and water-resistant, so it outlasts most woods. How it compares to bamboo on cracking, heat, hygiene and lifespan, and how to use it safely.',
   },
   // 751 impressions, 1 click at position 9.4.
   'minimum-water-temperature-sanitizing-utensils': {
@@ -317,11 +325,6 @@ export const contentSeo: Record<string, SeoEntry> = {
       'What a back scrubber does for skin you cannot reach — clearing back acne, exfoliating dead skin, and improving circulation — and how often to use one.',
   },
   // 216 impressions, zero clicks at position 13.8.
-  'is-teak-good-cooking-utensils': {
-    title: 'Is Teak Good for Cooking Utensils? Safety and Durability',
-    description:
-      'Teak is dense, oily and moisture-resistant, which is why it survives a kitchen. Its safety, heat tolerance, and where it beats bamboo and acacia.',
-  },
   // 189 impressions, zero clicks at position 8.3.
   'steam-and-pump-espresso-machines': {
     title: 'Steam vs Pump Espresso Machines: Which to Buy',
@@ -437,7 +440,6 @@ export const contentSeo: Record<string, SeoEntry> = {
 // across the library instead of pointing all 35 pages at the same three posts.
 const kitchenGuides = [
   'how-to-care-for-teak-utensils-a-heartcrafted-guide-to-preserving-your-kitchen-treasures',
-  'is-teak-good-cooking-utensils',
   'can-use-wooden-utensils-nonstick-pans',
   'are-wooden-spoons-safe-to-use',
   'can-wooden-spoons-grow-mold',
