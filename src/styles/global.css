@@ -13,6 +13,13 @@
 
 /* Let editorial images use the full width of the content column. */
 .wp-content figure{width:100%;max-width:none;margin:2rem 0}
+/* Tables arrive from the export unstyled, and without rules they read as loose
+   text. Scroll sideways inside the figure rather than widening the page. */
+.wp-content .wp-block-table{overflow-x:auto}
+.wp-content table{width:100%;border-collapse:collapse;font-size:1rem;line-height:1.45}
+.wp-content th,.wp-content td{text-align:left;vertical-align:top;padding:.85rem 1rem;border-bottom:1px solid var(--line)}
+.wp-content thead th{color:var(--ink);font-weight:700;border-bottom:2px solid var(--ink)}
+.wp-content tbody tr:nth-child(even){background:rgba(12,45,70,.035)}
 
 /* Grouped product catalog and in-page category navigation. */
 .category-jump{position:sticky;top:0;z-index:9;display:flex;align-items:center;justify-content:space-between;gap:2rem;padding:1rem clamp(1.25rem,4vw,4rem);border-bottom:1px solid var(--line);background:rgba(242,243,239,.96);backdrop-filter:blur(12px)}
