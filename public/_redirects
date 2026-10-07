@@ -27,3 +27,8 @@
 # Merged into the teak-vs-bamboo guide (Sep 2026): the two pages competed for
 # "is teak wood good for cooking utensils" and split the ranking.
 /is-teak-good-cooking-utensils/ /teak-bamboo-cooking-utensils/ 301
+
+# Merged into the teak-vs-bamboo guide (Oct 2026): ranked position 55 for
+# "are wooden spoons safe" while the teak-vs-bamboo guide held 1–6 for the same
+# safety queries.
+/are-wooden-spoons-safe-to-use/ /teak-bamboo-cooking-utensils/ 301

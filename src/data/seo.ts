@@ -212,7 +212,7 @@ export const productSeo: Record<string, SeoEntry> = {
     // it to the end of the title. It is the 5,400/mo head term, so it leads.
     title: 'Back Scrubber — Loofah on a 17" Long Teak Handle',
     description:
-      'A back scrubber that actually reaches: 17" teak handle, two natural loofah pads, real exfoliation and relief from itchy skin you cannot get to. On Amazon.',
+      'Back scrubber with a 17" teak handle and two natural back loofah pads — a back sponge on a stick that reaches the itchy spots you can\'t. On Amazon.',
   },
   'loofah-sponge-refill-back-scrubber-on-stick': {
     title: 'Loofah Back Scrubber Refill — 3 Replacement Pads',
@@ -265,9 +265,11 @@ export const contentSeo: Record<string, SeoEntry> = {
   },
   // 493 impressions, zero clicks at position 13.5.
   'how-to-treat-bamboo-utensils-a-step-by-step-guide-to-nourishing-your-kitchen-essentials': {
-    title: 'How to Treat Bamboo Utensils: Oiling, Drying, Storing',
+    // Oct 2026: ranked position 7 for "bamboo utensils" (1,600/mo) on 755
+    // impressions with zero clicks — the how-to title did not match the query.
+    title: 'Bamboo Utensils: How to Oil, Clean and Make Them Last',
     description:
-      'A step-by-step guide to treating bamboo utensils: which oil to use, how often to reapply, and the drying habit that stops splitting before it starts.',
+      'Bamboo utensils last years with the right care: which oil to use, how often to reapply, dishwasher or not, and the drying habit that stops splitting.',
   },
   // 627 impressions at position 24 — ranking poorly, so this leans on
   // specificity rather than trying to win a head term it cannot hold.
@@ -289,17 +291,19 @@ export const contentSeo: Record<string, SeoEntry> = {
       'Whetstone, pull-through or electric? How each sharpener treats your edge, which one suits your knives, and the angle that matters more than the tool.',
   },
   // 360 impressions, 2 clicks at position 10.9.
+  // Oct 2026: new. "wooden spatula" is 6,600/mo US (Serpstat, KD 32) and the
+  // nine spatula product pages had no hub page targeting the head term.
+  'wooden-spatula-guide': {
+    title: 'Wooden Spatula Guide: Flat, Slotted, Cast Iron and Stir-Fry',
+    description:
+      'Which wooden spatula for which job: flat edges for cast iron, slotted turners, stir-fry paddles and big-pot stirrers — and why teak outlasts the rest.',
+  },
   'how-to-care-for-teak-utensils-a-heartcrafted-guide-to-preserving-your-kitchen-treasures': {
     title: 'How to Care for Teak Utensils: Washing, Oiling, Drying',
     description:
-      'Care for teak utensils properly and they outlast every plastic tool in the drawer. Washing, oiling with coconut oil, drying, and what never to do.',
+      'How to care for teak utensils: hand-washing (and why never the dishwasher), oiling with coconut oil, drying, and the mistakes that crack them.',
   },
   // 321 impressions, zero clicks at position 12.6.
-  'are-wooden-spoons-safe-to-use': {
-    title: 'Are Wooden Spoons Safe to Use? What the Research Says',
-    description:
-      'Are wooden spoons hygienic, or a bacteria trap? What studies actually found about wood versus plastic, plus the care routine that keeps them safe.',
-  },
   // 277 impressions, zero clicks at position 12.6.
   'apple-cider-vinegar-clean-fruit': {
     title: 'Apple Cider Vinegar to Clean Fruit: Ratio and Soak Time',
@@ -308,7 +312,7 @@ export const contentSeo: Record<string, SeoEntry> = {
   },
   // 253 impressions, 2 clicks at position 16.2.
   'best-back-scrubbers-for-men': {
-    title: 'Best Back Scrubbers for Men: 7 Tested Picks',
+    title: 'Best Back Scrubber for Men: 7 Picks Compared',
     description:
       'Seven back scrubbers compared for reach, grip and exfoliation — loofah on a stick, brushes and straps — with who each one actually suits. Buy on Amazon.',
   },
@@ -439,9 +443,9 @@ export const contentSeo: Record<string, SeoEntry> = {
 // close that loop, and the rotation in product/[slug].astro spreads the links
 // across the library instead of pointing all 35 pages at the same three posts.
 const kitchenGuides = [
+  'wooden-spatula-guide',
   'how-to-care-for-teak-utensils-a-heartcrafted-guide-to-preserving-your-kitchen-treasures',
   'can-use-wooden-utensils-nonstick-pans',
-  'are-wooden-spoons-safe-to-use',
   'can-wooden-spoons-grow-mold',
   'teak-bamboo-cooking-utensils',
   'how-to-remove-oil-grease-from-utensils',
@@ -456,6 +460,11 @@ const bathingGuides = [
   'best-bath-sponge-for-elderly',
   'benefits-of-living-sustainably',
 ];
+
+// Articles whose job is to compare a set of products, and so emit an ItemList of
+// them. Kept explicit: twenty articles link five or more products in passing,
+// and an ItemList on those would describe them as something they are not.
+export const productRoundups = new Set(['wooden-spatula-guide']);
 
 export const guidePoolFor = (categorySlug?: string) =>
   categorySlug === 'bathing' ? bathingGuides : kitchenGuides;

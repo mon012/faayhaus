@@ -4,7 +4,8 @@ import StoryCard from '../components/StoryCard.astro';
 import posts from '../data/posts.json';
 import pages from '../data/pages.json';
 import { featured, featuredAlt, featuredSrcset, clean, stripDuplicateTitle, prepareEmbeddedMedia, img } from '../lib';
-import { contentSeo } from '../data/seo';
+import { contentSeo, productRoundups } from '../data/seo';
+import products from '../data/products.json';
 
 export function getStaticPaths() {
   const excluded = new Set(['articles', 'store', 'cart', 'checkout', 'my-account', 'h']);
@@ -72,6 +73,23 @@ const faqPairs = isArticle
       .filter((pair) => pair.question.length > 10 && pair.answer.length > 60)
       .slice(0, 8)
   : [];
+// Products in the order the roundup presents them, read from its own links.
+const roundupSlugs = isArticle && productRoundups.has(item.slug)
+  ? [...new Set([...rawContent.matchAll(/href=["'](?:https?:\/\/(?:www\.)?faayhaus\.com)?\/product\/([a-z0-9-]+)\//gi)].map((m) => m[1]))]
+  : [];
+const roundupProducts = roundupSlugs
+  .map((slug) => products.find((product: any) => product.slug === slug))
+  .filter(Boolean) as any[];
+const itemListSchema = roundupProducts.length >= 2 ? {
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  itemListElement: roundupProducts.map((product, index) => ({
+    '@type': 'ListItem',
+    position: index + 1,
+    name: clean(product.name),
+    url: new URL(`/product/${product.slug}/`, Astro.site).toString(),
+  })),
+} : null;
 const faqSchema = faqPairs.length >= 2 ? {
   '@context': 'https://schema.org',
   '@type': 'FAQPage',
@@ -117,7 +135,7 @@ const breadcrumbSchema = isArticle ? {
   type={isArticle ? 'article' : 'website'}
   publishedTime={isArticle ? item.date : undefined}
   modifiedTime={isArticle ? item.modified : undefined}
-  schema={[articleSchema, breadcrumbSchema, faqSchema].filter(Boolean)}
+  schema={[articleSchema, breadcrumbSchema, faqSchema, itemListSchema].filter(Boolean)}
 >
   {
     isAbout ? (
