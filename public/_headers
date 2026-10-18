@@ -19,8 +19,13 @@
 /_astro/*
   Cache-Control: public, max-age=31536000, immutable
 
+# No inline scripts ship in dist/ (JSON-LD is a data block, not executed).
+# Third parties: Deftform contact form, Reddit/YouTube/Pinterest embeds in
+# articles, Cloudflare Web Analytics, Google Fonts, Amazon/Shopify images.
 /*
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
   X-Frame-Options: SAMEORIGIN
   Permissions-Policy: geolocation=(), microphone=(), camera=(), interest-cohort=()
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+  Content-Security-Policy: default-src 'self'; script-src 'self' https://cdn.deftform.com https://embed.reddit.com https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; frame-src https://www.youtube.com https://www.youtube-nocookie.com https://assets.pinterest.com https://*.deftform.com https://embed.reddit.com https://*.reddit.com; connect-src 'self' https://cloudflareinsights.com https://*.deftform.com; object-src 'none'; base-uri 'self'; form-action 'self' https://*.deftform.com; frame-ancestors 'self'; upgrade-insecure-requests
