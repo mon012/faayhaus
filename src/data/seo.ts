@@ -74,8 +74,11 @@ export const productSeo: Record<string, SeoEntry> = {
       'One teak tool that chops, stirs and scrapes: a flat chopping edge on a spoon body, angled for the right hand. Safe on nonstick. Check it on Amazon.',
   },
   // "wooden ladle" 5,400/mo. GSC: 769 impressions, zero clicks at position 7.8.
+  // Oct 2026: 15,101 impressions, 4 clicks — nearly all from bare "ladle"
+  // (590/mo, likely an image/shopping surface). Lead with "Wooden Ladle", the
+  // 5,400/mo term with buying intent, instead of "Teak".
   'teak-kitchen-ladle': {
-    title: 'Teak Wooden Ladle for Soup & Gravy — Hand Carved',
+    title: 'Wooden Ladle — Hand-Carved Teak Soup & Gravy Ladle',
     description:
       'A hand-carved teak wooden ladle with a deep bowl for soup, stock and gravy. Will not scratch pots, will not melt on the rim. See the price on Amazon.',
   },
@@ -109,10 +112,13 @@ export const productSeo: Record<string, SeoEntry> = {
       'A teak wooden cooking spoon that mixes, tastes and serves. Moisture-resistant grain that resists cracking, hand carved and oil finished. See it on Amazon.',
   },
   // "large wooden spoon" 1,000. GSC: position 3.1, 403 impressions, zero clicks.
+  // Oct 2026: 1,412 impressions, 2 clicks. Ranks 4–5 for "big wooden spoon"
+  // (1,000/mo), "large spatula" (320) and "large wooden spatula" (90), none of
+  // which the old title used.
   'teak-large-wooden-spoon-spatula': {
-    title: '18" Large Wooden Spoon Spatula — Stir Paddle',
+    title: 'Big Wooden Spoon & Large Spatula, 18" — Teak Paddle',
     description:
-      'An 18" teak stir paddle for stockpots, gumbo and batch cooking, with a flat spatula edge that reaches the bottom corners. Heavy duty. View it on Amazon.',
+      'A big 18" wooden spoon with a flat spatula edge — a large teak stir paddle for stockpots, gumbo and batch cooking that reaches the bottom corners. On Amazon.',
   },
   // "long handle wooden spoon" 170 — deliberately narrower than the 18" paddle
   // above so the two large spoons target different intents.
@@ -166,8 +172,9 @@ export const productSeo: Record<string, SeoEntry> = {
       'A teak pan scraper cut from one piece of wood, with firm edges that lift burnt-on food without scratching. No plastic, no bending. View it on Amazon.',
   },
   // "chinese soup spoon" 2,400 — the strongest term in the tableware range.
+  // Oct 2026: position 14–20. Put the exact query first.
   'teak-chinese-soup-spoons': {
-    title: 'Teak Chinese Soup Spoons — Wooden Ramen Spoons',
+    title: 'Chinese Soup Spoons — Teak Wooden Ramen Spoons',
     description:
       'Chinese-style soup spoons carved from teak: a flat base that sits still in the bowl and a rim that stays cool on the lip. Set of spoons. See on Amazon.',
   },
@@ -241,9 +248,11 @@ export const contentSeo: Record<string, SeoEntry> = {
     // Sep 2026: now also the home of is-teak-good-cooking-utensils, merged in
     // because both pages competed for "is teak wood good for cooking utensils"
     // (453 impressions/25 days) and the weaker one sat at position 14.6.
-    title: 'Is Teak Good for Cooking Utensils? Teak vs Bamboo',
+    // Oct 2026: the "is/are teak … safe" variants added ~550 impressions at
+    // positions 3–5 with a 0–2% CTR — the title answered "good", not "safe".
+    title: 'Is Teak Safe and Good for Cooking Utensils? vs Bamboo',
     description:
-      'Yes — teak is dense, oily and water-resistant, so it outlasts most woods. How it compares to bamboo on cracking, heat, hygiene and lifespan, and how to use it safely.',
+      'Yes — teak is food-safe: dense, oily and water-resistant, so it resists bacteria and outlasts most woods. How it compares to bamboo on cracking, heat and hygiene.',
   },
   // 751 impressions, 1 click at position 9.4.
   'minimum-water-temperature-sanitizing-utensils': {
@@ -312,7 +321,8 @@ export const contentSeo: Record<string, SeoEntry> = {
   },
   // 253 impressions, 2 clicks at position 16.2.
   'best-back-scrubbers-for-men': {
-    title: 'Best Back Scrubber for Men: 7 Picks Compared',
+    // Oct 2026: also ranks 15 for "best back scrubber for shower" (1,000/mo).
+    title: 'Best Back Scrubber for Men & Shower: 7 Picks Compared',
     description:
       'Seven back scrubbers compared for reach, grip and exfoliation — loofah on a stick, brushes and straps — with who each one actually suits. Buy on Amazon.',
   },
